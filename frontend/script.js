@@ -1,6 +1,7 @@
 // Global variables
 let tasks = [];
 let editingIndex = -1; // -1 means not editing, otherwise index of task being edited
+let completedTasks = [];
 
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -9,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load sample tasks for demonstration
     loadSampleTasks();
+    
+    // Load completed tasks from storage
+    loadCompletedTasks();
 });
 
 // Add single task from form
@@ -41,6 +45,7 @@ function addSingleTask(event) {
     }
     
     updateTasksList();
+    updateProgressStats();
     document.getElementById('singleTaskForm').reset();
 }
 
@@ -110,6 +115,7 @@ function deleteTask(index) {
     if (confirm('Are you sure you want to delete "' + tasks[index].title + '"?')) {
         const deletedTask = tasks.splice(index, 1)[0];
         updateTasksList();
+        updateProgressStats();
         showNotification('Task deleted: ' + deletedTask.title, 'success');
         
         // If we were editing this task, cancel edit mode
@@ -147,6 +153,7 @@ function loadJSONTasks() {
         
         tasks = tasks.concat(validTasks);
         updateTasksList();
+        updateProgressStats();
         showNotification(`Loaded ${validTasks.length} tasks from JSON`, 'success');
         
     } catch (error) {
@@ -302,6 +309,7 @@ function clearAllTasks() {
         editingIndex = -1;
         document.querySelector('#singleTaskForm button').textContent = 'Add Task';
         updateTasksList();
+        updateProgressStats();
         document.getElementById('results').innerHTML = '';
         showNotification('All tasks cleared', 'success');
     }
@@ -399,6 +407,160 @@ function displayDependencyGraph(circularPairs) {
     html += `</div>`;
     
     resultsElement.innerHTML = html;
+}
+
+// Completion Tracking System
+
+// Mark the top task as completed
+function markTopTaskCompleted() {
+    if (tasks.length === 0) {
+        showNotification('No tasks to mark as completed!', 'error');
+        return;
+    }
+
+    // Get the top task from current analysis results
+    const currentResults = document.querySelectorAll('.task-card');
+    if (currentResults.length === 0) {
+        showNotification('Please analyze tasks first to see which task is recommended!', 'error');
+        return;
+    }
+
+    const topTaskElement = currentResults[0];
+    const topTaskTitle = topTaskElement.querySelector('.task-title').textContent.replace(/^\d+\.\s/, '');
+    
+    // Find the actual task in our tasks array
+    const taskIndex = tasks.findIndex(task => task.title === topTaskTitle);
+    if (taskIndex === -1) {
+        showNotification('Could not find the task to complete', 'error');
+        return;
+    }
+
+    const completedTask = tasks[taskIndex];
+    
+    // Add completion timestamp
+    completedTask.completedAt = new Date().toLocaleString();
+    completedTask.completedOrder = completedTasks.length + 1;
+    
+    // Move task from active to completed
+    completedTasks.push(completedTask);
+    tasks.splice(taskIndex, 1);
+    
+    // Save to storage
+    saveCompletedTasks();
+    
+    // Update displays
+    updateTasksList();
+    updateProgressStats();
+    
+    // Show celebration
+    showNotification(`🎉 Task completed: "${completedTask.title}"`, 'success');
+    
+    // Add visual feedback
+    topTaskElement.style.animation = 'taskComplete 0.6s ease-in-out';
+}
+
+// Show/hide completed tasks
+function showCompletedTasks() {
+    const completedList = document.getElementById('completedTasksList');
+    const container = document.getElementById('completedTasksContainer');
+    
+    if (completedTasks.length === 0) {
+        showNotification('No completed tasks yet!', 'info');
+        return;
+    }
+    
+    // Toggle visibility
+    if (completedList.classList.contains('hidden')) {
+        // Show completed tasks
+        container.innerHTML = completedTasks.map((task, index) => `
+            <div class="completed-task-item">
+                <div class="completed-task-info">
+                    <div class="completed-task-title">${task.title}</div>
+                    <div class="completed-task-meta">
+                        Completed: ${task.completedAt} | 
+                        Importance: ${task.importance}/10 | 
+                        Effort: ${task.estimated_hours}h
+                    </div>
+                </div>
+                <div class="completed-task-actions">
+                    <button onclick="restoreTask(${index})" class="restore-btn">↶ Restore</button>
+                    <button onclick="removeCompletedTask(${index})" class="remove-btn">× Remove</button>
+                </div>
+            </div>
+        `).join('');
+        
+        completedList.classList.remove('hidden');
+    } else {
+        // Hide completed tasks
+        completedList.classList.add('hidden');
+    }
+}
+
+// Restore a completed task back to active
+function restoreTask(completedIndex) {
+    const task = completedTasks[completedIndex];
+    tasks.push(task);
+    completedTasks.splice(completedIndex, 1);
+    
+    saveCompletedTasks();
+    updateTasksList();
+    updateProgressStats();
+    showCompletedTasks(); // Refresh the display
+    
+    showNotification(`↶ Task restored: "${task.title}"`, 'success');
+}
+
+// Remove a completed task permanently
+function removeCompletedTask(completedIndex) {
+    const taskTitle = completedTasks[completedIndex].title;
+    if (confirm(`Permanently remove "${taskTitle}" from completed tasks?`)) {
+        completedTasks.splice(completedIndex, 1);
+        saveCompletedTasks();
+        updateProgressStats();
+        showCompletedTasks(); // Refresh the display
+        showNotification(`🗑️ Task removed: "${taskTitle}"`, 'success');
+    }
+}
+
+// Clear all completed tasks
+function clearCompletedTasks() {
+    if (completedTasks.length === 0) {
+        showNotification('No completed tasks to clear!', 'info');
+        return;
+    }
+    
+    if (confirm(`Clear all ${completedTasks.length} completed tasks? This cannot be undone.`)) {
+        completedTasks = [];
+        saveCompletedTasks();
+        updateProgressStats();
+        document.getElementById('completedTasksList').classList.add('hidden');
+        showNotification('All completed tasks cleared!', 'success');
+    }
+}
+
+// Update progress statistics
+function updateProgressStats() {
+    const totalTasks = tasks.length + completedTasks.length;
+    const completedCount = completedTasks.length;
+    const completionRate = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+    
+    document.getElementById('totalTasks').textContent = totalTasks;
+    document.getElementById('completedTasks').textContent = completedCount;
+    document.getElementById('completionRate').textContent = completionRate + '%';
+}
+
+// Save completed tasks to browser storage
+function saveCompletedTasks() {
+    localStorage.setItem('taskAnalyzerCompleted', JSON.stringify(completedTasks));
+}
+
+// Load completed tasks from browser storage
+function loadCompletedTasks() {
+    const saved = localStorage.getItem('taskAnalyzerCompleted');
+    if (saved) {
+        completedTasks = JSON.parse(saved);
+        updateProgressStats();
+    }
 }
 
 // Load sample tasks for demonstration
