@@ -307,6 +307,100 @@ function clearAllTasks() {
     }
 }
 
+// Circular dependency visualization
+function visualizeDependencies() {
+    if (tasks.length === 0) {
+        showNotification('No tasks to analyze for dependencies', 'info');
+        return;
+    }
+    
+    const hasCircular = detectCircularDependencies(tasks);
+    displayDependencyGraph(hasCircular);
+}
+
+// Simple circular dependency detection
+function detectCircularDependencies(tasks) {
+    const circularPairs = [];
+    
+    // Check for direct circular dependencies (A->B and B->A)
+    for (let i = 0; i < tasks.length; i++) {
+        for (let j = i + 1; j < tasks.length; j++) {
+            const taskA = tasks[i];
+            const taskB = tasks[j];
+            
+            // Check if A depends on B AND B depends on A
+            const aDependsOnB = taskA.dependencies.includes(j + 1);
+            const bDependsOnA = taskB.dependencies.includes(i + 1);
+            
+            if (aDependsOnB && bDependsOnA) {
+                circularPairs.push([i, j]);
+            }
+        }
+    }
+    
+    return circularPairs;
+}
+
+// Display dependency graph
+function displayDependencyGraph(circularPairs) {
+    const resultsElement = document.getElementById('results');
+    
+    let html = `
+        <div class="dependency-section">
+            <h3>🔗 Dependency Analysis</h3>
+            <div class="dependency-graph">
+    `;
+    
+    // Display each task with its dependencies
+    tasks.forEach((task, index) => {
+        const isCircular = circularPairs.some(pair => pair.includes(index));
+        const circularClass = isCircular ? 'circular-task' : '';
+        
+        html += `
+            <div class="task-node ${circularClass}">
+                <div class="node-header">
+                    <strong>${index + 1}. ${task.title}</strong>
+                    ${isCircular ? '🔄' : ''}
+                </div>
+                <div class="node-dependencies">
+                    ${task.dependencies.length > 0 ? 
+                      `Depends on: ${task.dependencies.map(dep => `<span class="dep-link">${dep}</span>`).join(', ')}` : 
+                      'No dependencies'}
+                </div>
+                ${isCircular ? '<div class="circular-warning">Circular dependency detected!</div>' : ''}
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    
+    // Show circular dependency warnings
+    if (circularPairs.length > 0) {
+        html += `
+            <div class="circular-alert">
+                <h4>🔄 Circular Dependencies Found!</h4>
+                <p>The following tasks have circular dependencies (they block each other):</p>
+                <ul>
+                    ${circularPairs.map(pair => 
+                        `<li>Task ${pair[0] + 1} "${tasks[pair[0]].title}" ↔ Task ${pair[1] + 1} "${tasks[pair[1]].title}"</li>`
+                    ).join('')}
+                </ul>
+                <p><strong>Solution:</strong> Remove one of the dependencies to break the cycle.</p>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="no-circular">
+                ✅ No circular dependencies found! Your task dependencies are well-structured.
+            </div>
+        `;
+    }
+    
+    html += `</div>`;
+    
+    resultsElement.innerHTML = html;
+}
+
 // Load sample tasks for demonstration
 function loadSampleTasks() {
     const sampleTasks = [
@@ -397,34 +491,6 @@ style.textContent = `
     @keyframes slideOut {
         from { transform: translateX(0); opacity: 1; }
         to { transform: translateX(100%); opacity: 0; }
-    }
-    
-    .task-actions {
-        margin-top: 8px;
-    }
-    
-    .edit-btn {
-        background: #ecc94b !important;
-        margin-right: 5px;
-    }
-    
-    .edit-btn:hover {
-        background: #d69e2e !important;
-    }
-    
-    .delete-btn {
-        background: #f56565 !important;
-    }
-    
-    .delete-btn:hover {
-        background: #e53e3e !important;
-    }
-    
-    .task-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 5px;
     }
 `;
 document.head.appendChild(style);
