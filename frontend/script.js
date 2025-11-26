@@ -110,10 +110,25 @@ function editTask(index) {
     showNotification('Editing task: ' + task.title, 'info');
 }
 
-// Delete task function
+// Delete task function WITH DEPENDENCY FIXING
 function deleteTask(index) {
     if (confirm('Are you sure you want to delete "' + tasks[index].title + '"?')) {
         const deletedTask = tasks.splice(index, 1)[0];
+        
+        // FIX DEPENDENCIES: Update all other tasks' dependencies
+        tasks.forEach(task => {
+            // Remove dependencies pointing to the deleted task
+            task.dependencies = task.dependencies.filter(dep => dep !== index + 1);
+            
+            // Update dependencies that point to tasks after the deleted one
+            task.dependencies = task.dependencies.map(dep => {
+                if (dep > index + 1) {
+                    return dep - 1; // Decrease the dependency number
+                }
+                return dep; // Keep as is
+            });
+        });
+        
         updateTasksList();
         updateProgressStats();
         showNotification('Task deleted: ' + deletedTask.title, 'success');
@@ -411,7 +426,7 @@ function displayDependencyGraph(circularPairs) {
 
 // Completion Tracking System
 
-// Mark the top task as completed
+// Mark the top task as completed WITH DEPENDENCY FIXING
 function markTopTaskCompleted() {
     if (tasks.length === 0) {
         showNotification('No tasks to mark as completed!', 'error');
@@ -436,6 +451,20 @@ function markTopTaskCompleted() {
     }
 
     const completedTask = tasks[taskIndex];
+    
+    // FIX DEPENDENCIES before moving the task
+    tasks.forEach(task => {
+        // Remove dependencies pointing to the completed task
+        task.dependencies = task.dependencies.filter(dep => dep !== taskIndex + 1);
+        
+        // Update dependencies that point to tasks after the completed one
+        task.dependencies = task.dependencies.map(dep => {
+            if (dep > taskIndex + 1) {
+                return dep - 1; // Decrease the dependency number
+            }
+            return dep; // Keep as is
+        });
+    });
     
     // Add completion timestamp
     completedTask.completedAt = new Date().toLocaleString();
