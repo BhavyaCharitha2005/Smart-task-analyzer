@@ -12,18 +12,11 @@
 
 * #### **Prerequisites**
 
-
-
 \- Python 3.8+
 
 \- Django 4.0+
 
-
-
 * #### **Installation Steps**
-
-
-
 ###### **1.Clone and Setup Backend**
 
 &nbsp;
@@ -38,15 +31,9 @@
 
 &nbsp; python manage.py runserver
 
-
-
 ######                          Backend server runs on ***http://127.0.0.1:8000/***
 
-
-
 ###### **2.Launch Frontend:**
-
-
 
 &nbsp;- Open ***frontend/index.html*** in your web browser.
 
@@ -60,11 +47,7 @@
 
 &nbsp; The Smart Task Analyzer uses an advanced, weighted scoring system that evaluates each task against four critical dimensions. Each task has a computed     priority score via a carefully balanced formula considering both immediate needs and long-term impact.
 
-
-
 ##### **Formula:**
-
-
 
 ######     Priority Score =(Urgency × W\_urgency)+(Importance × W\_importance)+(Effort × W\_effort)+(Dependency × W\_dependency)  
 
@@ -101,11 +84,9 @@ The rating of importance, as provided by users on a scale from 1 to 10, is multi
 #### **3)Design Decisions:**
 
 
-
 * ###### **Algorithm Balance:** 
 
 Instead of rigid hierarchies, I implemented weighted scoring to handle the complex interplay between urgency and importance. This prevents important long-term tasks from being perpetually overshadowed by less important urgent tasks.
-
 
 
 * ###### **Overdue Handling:**
@@ -113,11 +94,9 @@ Instead of rigid hierarchies, I implemented weighted scoring to handle the compl
 &nbsp;Exponential penalties for overdue tasks create appropriate urgency without allowing scores to become unreasonably high. The cap at 150 points maintains score balance across the system.
 
 
-
 * ###### **Effort Curve:** 
 
 The non-linear effort scoring strongly incentivizes quick wins while still acknowledging that some important tasks require significant time investment.
-
 
 
 * ###### **Circular Dependency Resolution:**
@@ -131,15 +110,10 @@ The non-linear effort scoring strongly incentivizes quick wins while still ackno
 Using SQLite and no authentication aligned with assignment requirements while ensuring easy setup and evaluation.
 
 
-
 ### **4) Time Breakdown:**
-
-
 
 * ###### **Project Planning \& Algorithm Design:** 45 minutes
 * ###### **Backend Development (Django)**: 2 hours
-
-
 
 &nbsp;- Project setup \& models: 30 minutes.
 
@@ -148,8 +122,6 @@ Using SQLite and no authentication aligned with assignment requirements while en
 &nbsp;- API endpoints: 30 minutes.
 
 * ###### **Frontend Development: 1.5 hours**
-
-
 
 &nbsp;- HTML structure \& forms: 40 minutes.
 
@@ -166,9 +138,7 @@ Using SQLite and no authentication aligned with assignment requirements while en
 &nbsp;- Total Development Time: 4 hours 15 minutes.
 
 
-
 ### **5)Unit Tests for Scoring-Algorithm:**
-
 
 
 * **Test for Urgency Scoring               :** Tests time-based scoring
@@ -192,10 +162,7 @@ Using SQLite and no authentication aligned with assignment requirements while en
 
 
 
-
 ### **6)Bonus Challenges Attempted:**
-
-
 
 * ###### **Circular Dependency Detection:**
 
@@ -209,10 +176,7 @@ Using SQLite and no authentication aligned with assignment requirements while en
 
 ### 
 
-### 7**)Future Improvements:**
-
-
-
+### 7)Future Improvements:
 
 
 * **Visual Dependency Graphs**: Showing task relationships and highlighting circular dependencies.
@@ -238,6 +202,7 @@ Using SQLite and no authentication aligned with assignment requirements while en
 
 
 &nbsp;                                                                                                                                 
+
 
 
 
