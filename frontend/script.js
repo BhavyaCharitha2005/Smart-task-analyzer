@@ -1,5 +1,6 @@
 // Global variables
 let tasks = [];
+let editingIndex = -1; // -1 means not editing, otherwise index of task being edited
 
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -14,14 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function addSingleTask(event) {
     event.preventDefault();
     
-    const form = event.target;
-    const formData = new FormData(form);
-    
     const task = {
-        title: formData.get('title') || document.getElementById('title').value,
-        due_date: formData.get('due_date') || document.getElementById('due_date').value,
-        estimated_hours: parseFloat(formData.get('estimated_hours') || document.getElementById('estimated_hours').value),
-        importance: parseInt(formData.get('importance') || document.getElementById('importance').value),
+        title: document.getElementById('title').value,
+        due_date: document.getElementById('due_date').value,
+        estimated_hours: parseFloat(document.getElementById('estimated_hours').value),
+        importance: parseInt(document.getElementById('importance').value),
         dependencies: parseDependencies(document.getElementById('dependencies').value)
     };
     
@@ -30,11 +28,20 @@ function addSingleTask(event) {
         return;
     }
     
-    tasks.push(task);
-    updateTasksList();
-    form.reset();
+    if (editingIndex === -1) {
+        // Add new task
+        tasks.push(task);
+        showNotification('Task added successfully!', 'success');
+    } else {
+        // Update existing task
+        tasks[editingIndex] = task;
+        editingIndex = -1;
+        document.querySelector('#singleTaskForm button').textContent = 'Add Task';
+        showNotification('Task updated successfully!', 'success');
+    }
     
-    showNotification('Task added successfully!', 'success');
+    updateTasksList();
+    document.getElementById('singleTaskForm').reset();
 }
 
 // Parse dependencies from comma-separated string
@@ -73,6 +80,45 @@ function validateTask(task) {
     }
     
     return true;
+}
+
+// Edit task function
+function editTask(index) {
+    const task = tasks[index];
+    
+    // Fill the form with existing task data
+    document.getElementById('title').value = task.title;
+    document.getElementById('due_date').value = task.due_date;
+    document.getElementById('estimated_hours').value = task.estimated_hours;
+    document.getElementById('importance').value = task.importance;
+    document.getElementById('dependencies').value = task.dependencies.join(', ');
+    
+    // Set editing mode
+    editingIndex = index;
+    
+    // Change button text
+    document.querySelector('#singleTaskForm button').textContent = 'Update Task';
+    
+    // Scroll to form
+    document.getElementById('title').focus();
+    
+    showNotification('Editing task: ' + task.title, 'info');
+}
+
+// Delete task function
+function deleteTask(index) {
+    if (confirm('Are you sure you want to delete "' + tasks[index].title + '"?')) {
+        const deletedTask = tasks.splice(index, 1)[0];
+        updateTasksList();
+        showNotification('Task deleted: ' + deletedTask.title, 'success');
+        
+        // If we were editing this task, cancel edit mode
+        if (editingIndex === index) {
+            editingIndex = -1;
+            document.querySelector('#singleTaskForm button').textContent = 'Add Task';
+            document.getElementById('singleTaskForm').reset();
+        }
+    }
 }
 
 // Load tasks from JSON input
@@ -119,9 +165,17 @@ function updateTasksList() {
     
     tasksList.innerHTML = tasks.map((task, index) => `
         <div class="task-item">
-            <strong>${index + 1}. ${task.title}</strong><br>
-            Due: ${task.due_date} | Hours: ${task.estimated_hours} | Importance: ${task.importance}/10
-            ${task.dependencies.length > 0 ? `| Dependencies: [${task.dependencies.join(', ')}]` : ''}
+            <div class="task-header">
+                <strong>${index + 1}. ${task.title}</strong>
+                <div class="task-actions">
+                    <button onclick="editTask(${index})" class="edit-btn">Edit</button>
+                    <button onclick="deleteTask(${index})" class="delete-btn">Delete</button>
+                </div>
+            </div>
+            <div class="task-details">
+                Due: ${task.due_date} | Hours: ${task.estimated_hours} | Importance: ${task.importance}/10
+                ${task.dependencies.length > 0 ? `| Dependencies: [${task.dependencies.join(', ')}]` : ''}
+            </div>
         </div>
     `).join('');
 }
@@ -245,6 +299,8 @@ function clearAllTasks() {
     
     if (confirm('Are you sure you want to clear all tasks?')) {
         tasks = [];
+        editingIndex = -1;
+        document.querySelector('#singleTaskForm button').textContent = 'Add Task';
         updateTasksList();
         document.getElementById('results').innerHTML = '';
         showNotification('All tasks cleared', 'success');
@@ -341,6 +397,34 @@ style.textContent = `
     @keyframes slideOut {
         from { transform: translateX(0); opacity: 1; }
         to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .task-actions {
+        margin-top: 8px;
+    }
+    
+    .edit-btn {
+        background: #ecc94b !important;
+        margin-right: 5px;
+    }
+    
+    .edit-btn:hover {
+        background: #d69e2e !important;
+    }
+    
+    .delete-btn {
+        background: #f56565 !important;
+    }
+    
+    .delete-btn:hover {
+        background: #e53e3e !important;
+    }
+    
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5px;
     }
 `;
 document.head.appendChild(style);
