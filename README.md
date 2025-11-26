@@ -4,7 +4,9 @@
 
 &nbsp;A Django-based web application that intelligently scores and prioritizes tasks based on multiple factors including urgency, importance, effort, and     dependencies.
 
+## Demo Video 
 
+https://github.com/user-attachments/assets/8b94ab18-6493-4451-bc89-be8159226695
 
 ### **1)Setup Instructions:**
 
@@ -202,6 +204,7 @@ Using SQLite and no authentication aligned with assignment requirements while en
 
 
 &nbsp;                                                                                                                                 
+
 
 
 
