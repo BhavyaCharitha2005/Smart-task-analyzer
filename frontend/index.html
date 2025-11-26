@@ -73,6 +73,40 @@
             </div>
         </div>
 
+        <!-- Completion Tracking Section -->
+        <div class="completion-section">
+            <h2>✅ Task Completion Tracking</h2>
+            
+            <!-- Progress Stats -->
+            <div class="progress-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completionRate">0%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+            </div>
+
+            <!-- Completion Buttons -->
+            <div class="completion-buttons">
+                <button onclick="markTopTaskCompleted()" class="complete-btn">✅ Mark Top Task as Completed</button>
+                <button onclick="showCompletedTasks()" class="show-completed-btn">📋 Show Completed Tasks</button>
+                <button onclick="clearCompletedTasks()" class="clear-completed-btn">🗑️ Clear Completed Tasks</button>
+            </div>
+
+            <!-- Completed Tasks List -->
+            <div id="completedTasksList" class="completed-list hidden">
+                <h3>🎉 Completed Tasks</h3>
+                <div id="completedTasksContainer"></div>
+            </div>
+        </div>
+
         <!-- Output Section -->
         <div class="output-section">
             <h2>Analysis Results</h2>
