@@ -312,21 +312,34 @@ function getPriorityBadge(score) {
     return 'low';
 }
 
-// Clear all tasks
+// Clear all tasks (BOTH ACTIVE AND COMPLETED)
 function clearAllTasks() {
-    if (tasks.length === 0) {
+    const totalTasksCount = tasks.length + completedTasks.length;
+    
+    if (totalTasksCount === 0) {
         showNotification('No tasks to clear', 'info');
         return;
     }
     
-    if (confirm('Are you sure you want to clear all tasks?')) {
+    if (confirm('Are you sure you want to clear ALL tasks (including completed tasks)?')) {
+        // Clear both active and completed tasks
         tasks = [];
+        completedTasks = [];
         editingIndex = -1;
+        
+        // Update UI
         document.querySelector('#singleTaskForm button').textContent = 'Add Task';
         updateTasksList();
         updateProgressStats();
         document.getElementById('results').innerHTML = '';
-        showNotification('All tasks cleared', 'success');
+        
+        // Clear from storage
+        saveCompletedTasks();
+        
+        // Hide completed tasks list if it's open
+        document.getElementById('completedTasksList').classList.add('hidden');
+        
+        showNotification('All tasks cleared (including completed tasks)', 'success');
     }
 }
 
@@ -426,7 +439,7 @@ function displayDependencyGraph(circularPairs) {
 
 // Completion Tracking System
 
-// Mark the top task as completed WITH DEPENDENCY FIXING
+// Mark the top task as completed WITH AUTOMATIC RE-ANALYSIS
 function markTopTaskCompleted() {
     if (tasks.length === 0) {
         showNotification('No tasks to mark as completed!', 'error');
@@ -480,6 +493,14 @@ function markTopTaskCompleted() {
     // Update displays
     updateTasksList();
     updateProgressStats();
+    
+    // NEW: Automatically re-analyze remaining tasks
+    if (tasks.length > 0) {
+        analyzeTasks(); // This will automatically update the results
+    } else {
+        // If no tasks left, clear results
+        document.getElementById('results').innerHTML = '<p>All tasks completed! 🎉</p>';
+    }
     
     // Show celebration
     showNotification(`🎉 Task completed: "${completedTask.title}"`, 'success');
