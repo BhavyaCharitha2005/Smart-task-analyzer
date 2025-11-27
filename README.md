@@ -1,5 +1,9 @@
 #                  **SMART TASK ANALYZER**
 
+**Candidate:** John Doe  
+**Submission Date:** November 26, 2025
+
+## **Project Overview:**
 &nbsp;A Django-based web application that intelligently scores and prioritizes tasks based on multiple factors including urgency, importance, effort, and     dependencies.
 
 ### **1)Setup Instructions:**
@@ -134,6 +138,7 @@ For sharing analyzed task lists in various formats.
 Enabling team-based task prioritization.
 
 &nbsp;                                                                                                                                 
+
 
 
 
