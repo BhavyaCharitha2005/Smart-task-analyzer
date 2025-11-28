@@ -14,7 +14,9 @@ A Django-based web application that intelligently scores and prioritizes tasks b
 - Multiple Strategies: Smart Balance, Fastest Wins, High Impact, and Deadline Driven
 - CRUD Operations: Full Create, Read, Update, Delete functionality
 - Progress Tracking: Task completion monitoring and progress analytics
-- JSON Support: Bulk task import/export capabilities
+- JSON Support: Bulk task import/export capabilities.
+
+https://github.com/user-attachments/assets/3c20e24d-4b15-4e21-b059-1e655ce15ebf
 
 ## SETUP INSTRUCTIONS
 
@@ -50,7 +52,7 @@ Priority Score = min(100, (Urgency × W_urgency) + (Importance × W_importance) 
 - Dependencies: Multipliers: blocking one task (1.2x), multiple tasks (1.5x), circular dependencies penalized (0.5x)
 
 ### Available Strategies
-- Smart Balance: 40% urgency, 30% importance, 20% effort, 10% dependencies
+- Smart Balance(Default): 40% urgency, 30% importance, 20% effort, 10% dependencies
 - Fastest Wins: 50% effort, 20% urgency, 20% importance, 10% dependencies
 - High Impact: 70% importance, 10% urgency, 10% effort, 10% dependencies
 - Deadline Driven: 60% urgency, 20% importance, 10% effort, 10% dependencies
@@ -96,3 +98,4 @@ Priority Score = min(100, (Urgency × W_urgency) + (Importance × W_importance) 
 - Team Collaboration: Multi-user support for shared projects
 - Calendar Integration: Sync with popular calendar applications
 - Advanced Analytics: Time tracking and productivity analytics
+
