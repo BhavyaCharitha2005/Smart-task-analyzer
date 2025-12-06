@@ -1,7 +1,7 @@
 # SMART TASK ANALYZER
 
 **Developer:** Bojja Naga Bhavya Charitha  
-**Date     :** 27November  2025  
+
 
 
 A Django-based web application that intelligently scores and prioritizes tasks based on multiple factors including urgency, importance, effort, and dependencies.
@@ -98,4 +98,5 @@ Priority Score = min(100, (Urgency × W_urgency) + (Importance × W_importance) 
 - Team Collaboration: Multi-user support for shared projects
 - Calendar Integration: Sync with popular calendar applications
 - Advanced Analytics: Time tracking and productivity analytics
+
 
